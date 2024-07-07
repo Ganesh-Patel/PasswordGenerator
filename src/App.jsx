@@ -4,10 +4,31 @@ import './App.css';
 function App() {
   const [length, setLength] = useState(8);
   const [includeUppercase, setIncludeUppercase] = useState(false);
-  const [includeLowercase, setIncludeLowercase] = useState(true);
-  const [includeNumbers, setIncludeNumbers] = useState(true);
+  const [includeLowercase, setIncludeLowercase] = useState(false);
+  const [includeNumbers, setIncludeNumbers] = useState(false);
   const [includeSymbols, setIncludeSymbols] = useState(false);
   const [password, setPassword] = useState('');
+  const [strength, setStrength] = useState('');
+
+  const calculateStrength = (password) => {
+    let strength = 0;
+    if (password.length >= 8) strength += 1;
+    if (password.match(/[A-Z]/)) strength += 1;
+    if (password.match(/[a-z]/)) strength += 1;
+    if (password.match(/[0-9]/)) strength += 1;
+    if (password.match(/[^a-zA-Z0-9]/)) strength += 1;
+
+    switch (strength) {
+      case 5:
+        return 'Strong';
+      case 4:
+        return 'Good';
+      case 3:
+        return 'Fair';
+      default:
+        return 'Weak';
+    }
+  };
 
   const generatePassword = () => {
     const upperCaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -33,6 +54,12 @@ function App() {
     }
 
     setPassword(generatedPassword);
+    setStrength(calculateStrength(generatedPassword));
+  };
+
+  const refreshPassword = () => {
+    setPassword('');
+    setStrength('');
   };
 
   return (
@@ -81,15 +108,27 @@ function App() {
           Include Symbols
         </label>
       </div>
-      <button onClick={generatePassword}>Generate Password</button>
+      <div className="buttons">
+        <button onClick={generatePassword}>Generate Password</button>
+        <button onClick={refreshPassword}>Refresh</button>
+      </div>
       {password && (
         <div className="result">
-          <p>{password}</p>
-          <button
-            onClick={() => navigator.clipboard.writeText(password)}
-          >
-            Copy to Clipboard
-          </button>
+          <div className="password-box">
+            <input type="text" value={password} readOnly />
+            <button
+              onClick={() => navigator.clipboard.writeText(password)}
+              className="copy-button"
+            >
+              Copy
+            </button>
+          </div>
+          <div className="strength">
+            <span>Password Strength: </span>
+            <div className={`strength-bar ${strength.toLowerCase()}`}>
+              {strength}
+            </div>
+          </div>
         </div>
       )}
     </div>
